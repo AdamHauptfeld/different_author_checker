@@ -1,0 +1,57 @@
+""""
+This program takes a folder as an input and, for each word document in
+that folder, it checks if the original author and the last-modified-by
+author are the same. Then, it prints a list of each file whose two
+authors are NOT the same.
+
+This code was written with the assistance of Claude AI
+"""
+
+import os
+import docx
+
+#This function creates a dictionary whose keys are the names of the files
+#in the folder you pass it, and whose values are lists of the corresponding
+#file's metadata.
+def process_folder(folder_path):
+    file_metadata = {}
+    for filename in os.listdir(folder_path):
+        if filename.endswith('.docx'):
+            file_path = os.path.join(folder_path, filename)
+            metadata = get_metadata(file_path)
+            base_name = os.path.splitext(filename)[0]
+            file_metadata[base_name] = metadata
+    return file_metadata
+
+
+#This function gets the metadata from the word files passed to it.
+def get_metadata(file):
+    doc = docx.Document(file)
+    core_properties = doc.core_properties
+    author = core_properties.author
+    co_author = core_properties.last_modified_by
+    created_datetime = core_properties.created
+    modified_datetime = core_properties.modified
+    metadata = [author, co_author, created_datetime, modified_datetime]
+    return metadata
+
+#Get the folder path by right-clicking on the the folder and selecting "copy as path." Remove quotations marks after pasting.
+folder_path = input("Enter folder path: ")
+
+file_metadata = process_folder(folder_path)
+
+for file_name in file_metadata:
+    metadata = (file_metadata[file_name])
+    author = metadata[0]
+    co_author= metadata[1]
+    if author == co_author:
+        #print("\nFILE " + file_name)
+        #print("All good")
+        continue
+    else:
+        print("\n*AUTHOR MISMATCH*")
+        print("File: " + file_name)
+        print("Original author: " + author)
+        print("Last modified by: " + co_author)
+
+print("\nAnalysis complete.")
